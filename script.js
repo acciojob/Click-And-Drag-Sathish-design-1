@@ -1,38 +1,33 @@
-// Your code here.
-const cubes = document.querySelectorAll('.item');
-const container = document.querySelector('.items');
-let activeCube = null;
-let offsetX, offsetY;
+const cubes = document.querySelectorAll('.cube');
+const container = document.querySelector('.container');
 
 cubes.forEach(cube => {
     cube.addEventListener('mousedown', (e) => {
-        activeCube = cube;
-        offsetX = e.clientX - cube.getBoundingClientRect().left;
-        offsetY = e.clientY - cube.getBoundingClientRect().top;
+        let offsetX = e.clientX - cube.getBoundingClientRect().left;
+        let offsetY = e.clientY - cube.getBoundingClientRect().top;
+
+        const onMouseMove = (e) => {
+            let newX = e.clientX - offsetX;
+            let newY = e.clientY - offsetY;
+
+            // Boundary conditions
+            if (newX < 0) newX = 0;
+            if (newY < 0) newY = 0;
+            if (newX + cube.offsetWidth > container.offsetWidth) 
+                newX = container.offsetWidth - cube.offsetWidth;
+            if (newY + cube.offsetHeight > container.offsetHeight) 
+                newY = container.offsetHeight - cube.offsetHeight;
+
+            cube.style.left = newX + 'px';
+            cube.style.top = newY + 'px';
+        };
+
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+
         document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
     });
 });
-
-document.addEventListener('mouseup', () => {
-    activeCube = null;
-    document.removeEventListener('mousemove', onMouseMove);
-});
-
-function onMouseMove(e) {
-    if (!activeCube) return;
-
-    let newX = e.clientX - offsetX;
-    let newY = e.clientY - offsetY;
-
-    // Boundary checks
-    const containerRect = container.getBoundingClientRect();
-    const cubeRect = activeCube.getBoundingClientRect();
-
-    if (newX < containerRect.left) newX = containerRect.left;
-    if (newY < containerRect.top) newY = containerRect.top;
-    if (newX + cubeRect.width > containerRect.right) newX = containerRect.right - cubeRect.width;
-    if (newY + cubeRect.height > containerRect.bottom) newY = containerRect.bottom - cubeRect.height;
-
-    activeCube.style.left = newX - containerRect.left + 'px';
-    activeCube.style.top = newY - containerRect.top + 'px';
-}
